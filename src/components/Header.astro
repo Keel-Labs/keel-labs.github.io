@@ -12,9 +12,10 @@ const navLinks = [
 // GitHub's API rate-limits or errors.
 let starCount = '';
 try {
-  const res = await fetch('https://api.github.com/repos/Keel-Labs/keel', {
-    headers: { Accept: 'application/vnd.github+json' },
-  });
+  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+  const token = typeof process !== 'undefined' ? process.env?.GITHUB_TOKEN : '';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch('https://api.github.com/repos/Keel-Labs/keel', { headers });
   if (res.ok) {
     const data = await res.json();
     if (typeof data.stargazers_count === 'number') {

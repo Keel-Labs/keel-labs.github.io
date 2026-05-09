@@ -1,6 +1,10 @@
 ---
-const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg';
+import { getLatestRelease } from '../lib/release';
+
 const githubUrl = 'https://github.com/Keel-Labs/keel';
+
+const release = await getLatestRelease();
+const downloadUrl = release.dmgUrl;
 // Words rotated by the small client-side script below. Order kept in sync
 // with the data-rotate attribute so the static HTML matches the first word
 // shown to no-JS users / search crawlers.

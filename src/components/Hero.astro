@@ -1,8 +1,12 @@
 ---
+import { getLatestRelease } from '../lib/release';
+
 const demoEmbedUrl = 'https://www.loom.com/embed/29c1407fc2944b1fb5c6c1bbc953831b';
 const demoPosterUrl = '/keel-demo-poster.jpg';
-const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg';
 const githubUrl = 'https://github.com/Keel-Labs/keel';
+
+const release = await getLatestRelease();
+const downloadUrl = release.dmgUrl;
 ---
 
 <section class="relative overflow-hidden">
@@ -15,7 +19,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
   <div class="container-narrow relative pt-10 pb-12 md:pt-14 md:pb-16">
     <div class="relative mx-auto flex max-w-4xl flex-col items-center text-center">
       <span class="eyebrow rounded-full bg-accent/10 px-4 py-1.5 text-accent">
-        Now available — v0.2.0
+        Now available — {release.tag}
       </span>
 
       <img
