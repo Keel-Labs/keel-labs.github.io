@@ -123,14 +123,15 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
         const cy = (r.top + r.bottom) / 2 - canvasRect.top;
         const halfH = r.height / 2;
         // Asymmetric: extend the band well above the logo (covers the
-        // eyebrow area) and just past the logo's bottom edge.
+        // eyebrow area) and stop right at the logo's bottom edge so
+        // boats never sail into the subhead.
         bandTop = cy - halfH * 2.6;
-        bandBottom = cy + halfH * 1.3;
-        // Clamp bottom so the band never reaches the subhead — boats
-        // stay above body copy regardless of viewport / logo size.
+        bandBottom = cy + halfH * 1.0;
+        // Hard clamp: never past 30px above the subhead top, even if
+        // the logo is unusually tall at this viewport.
         if (subhead) {
           const subTop = subhead.getBoundingClientRect().top - canvasRect.top;
-          bandBottom = Math.min(bandBottom, subTop - 12);
+          bandBottom = Math.min(bandBottom, subTop - 30);
         }
         logoLeft = r.left - canvasRect.left;
         logoRight = r.right - canvasRect.left;
@@ -168,7 +169,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
     }
 
     function spawn(initial: boolean): Boat {
-      const size = 8 + Math.random() * 6;
+      const size = 5 + Math.random() * 4;
       // On respawn, slot in just off the left edge so boats appear to
       // sail in from the left. On initial seed, scatter across the
       // full canvas width so the band starts populated.
