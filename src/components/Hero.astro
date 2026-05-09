@@ -9,7 +9,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
   <canvas
     id="hero-particles"
     aria-hidden="true"
-    class="pointer-events-none absolute inset-0 hidden lg:block"
+    class="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
   ></canvas>
 
   <div class="container-narrow relative pt-10 pb-12 md:pt-14 md:pb-16">
@@ -25,7 +25,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       />
 
       <p class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-ink-600 dark:text-ink-300 md:text-lg">
-        An AI assistant whose memory belongs to you. Local-first Mac app. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays.
+        <strong class="font-bold text-ink-900 dark:text-white">An AI assistant whose memory belongs to you.</strong> Local-first Mac app. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays.
       </p>
 
       <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
@@ -83,11 +83,24 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    type P = { x: number; y: number; vx: number; vy: number; size: number; alpha: number; rot: number; vr: number };
-    let particles: P[] = [];
+    // Origami sailboats — each boat drifts horizontally, bobs on an
+    // invisible waterline (sine wave on y), and rolls slightly with the
+    // bob so it reads as floating rather than sliding.
+    type Boat = {
+      x: number;
+      baseY: number;
+      vx: number;       // px/sec
+      size: number;     // sail-tip-to-waterline radius in px
+      alpha: number;
+      bobAmp: number;   // px
+      bobFreq: number;  // rad/sec
+      bobPhase: number; // rad
+    };
+    let boats: Boat[] = [];
     let raf = 0;
     let running = false;
     let lastT = 0;
+    let elapsed = 0;
     let w = 0, h = 0;
 
     const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
@@ -105,36 +118,38 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
     function seed() {
       const area = w * h;
-      const count = Math.max(30, Math.min(140, Math.round(area / 12000)));
-      particles = [];
-      for (let i = 0; i < count; i++) particles.push(spawn(true));
+      // Sailboats are larger and more recognisable than triangles, so
+      // density is lower — too many feels busy.
+      const count = Math.max(8, Math.min(28, Math.round(area / 36000)));
+      boats = [];
+      for (let i = 0; i < count; i++) boats.push(spawn(true));
     }
 
-    function spawn(initial: boolean): P {
-      // Now that the hero is centered, scatter particles across the whole
-      // canvas with a gentle outward drift so they fill the negative space
-      // around the logo without crowding it.
-      const x = initial ? Math.random() * w : (Math.random() < 0.5 ? -10 : w + 10);
-      const y = Math.random() * h;
-      const size = 3 + Math.random() * 5;
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 6 + Math.random() * 12;
+    function spawn(initial: boolean): Boat {
+      const size = 9 + Math.random() * 9;
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const x = initial ? Math.random() * w : (dir > 0 ? -size * 3 : w + size * 3);
+      const baseY = size * 2.5 + Math.random() * (h - size * 5);
       return {
         x,
-        y,
-        vx: Math.cos(angle) * speed * 0.6,
-        vy: Math.sin(angle) * speed * 0.4,
+        baseY,
+        vx: dir * (4 + Math.random() * 8),
         size,
-        alpha: 0.1 + Math.random() * 0.3,
-        rot: Math.random() * Math.PI * 2,
-        vr: (Math.random() - 0.5) * 0.4,
+        alpha: 0.18 + Math.random() * 0.22,
+        bobAmp: 2 + Math.random() * 4,
+        bobFreq: 0.6 + Math.random() * 0.8,
+        bobPhase: Math.random() * Math.PI * 2,
       };
     }
 
-    function drawTriangle(p: P) {
-      const { x, y, size, rot, alpha } = p;
-      // Fade particles inside a centered "no-go" radius so they don't
-      // visually fight the logo and headline.
+    function drawBoat(b: Boat, t: number) {
+      const { x, baseY, size, alpha, bobAmp, bobFreq, bobPhase } = b;
+      const bob = Math.sin(t * bobFreq + bobPhase);
+      const y = baseY + bob * bobAmp;
+      const roll = bob * 0.06; // small tilt synced with the bob
+
+      // Fade boats inside a centered "no-go" radius so they don't crowd
+      // the logo and headline.
       const cx = w / 2;
       const cy = h / 2;
       const dx = x - cx;
@@ -144,16 +159,33 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       const fade = Math.min(1, Math.max(0, (dist - safeRadius) / (Math.min(w, h) * 0.18)));
       const a = alpha * fade;
       if (a <= 0.01) return;
+
       ctx!.save();
       ctx!.translate(x, y);
-      ctx!.rotate(rot);
+      ctx!.rotate(roll);
+
+      const fill = `rgba(207, 122, 92, ${a})`;
+      ctx!.fillStyle = fill;
+
+      // Hull: trapezoid sitting on the waterline (y=0). Wider at the
+      // top, narrower at the bottom — a folded-paper boat profile.
       ctx!.beginPath();
-      ctx!.moveTo(size, 0);
-      ctx!.lineTo(-size * 0.6, size * 0.55);
-      ctx!.lineTo(-size * 0.6, -size * 0.55);
+      ctx!.moveTo(-1.4 * size, 0);
+      ctx!.lineTo(1.4 * size, 0);
+      ctx!.lineTo(0.85 * size, 0.55 * size);
+      ctx!.lineTo(-0.85 * size, 0.55 * size);
       ctx!.closePath();
-      ctx!.fillStyle = `rgba(207, 122, 92, ${a})`;
       ctx!.fill();
+
+      // Sail: right triangle leaning forward. Vertical mast on the
+      // right, hypotenuse from tip down to the hull's left-top corner.
+      ctx!.beginPath();
+      ctx!.moveTo(0, -2.0 * size);   // sail tip (top)
+      ctx!.lineTo(0, -0.05 * size);  // mast base, slight overlap with hull
+      ctx!.lineTo(-1.1 * size, -0.05 * size); // hull-top-left
+      ctx!.closePath();
+      ctx!.fill();
+
       ctx!.restore();
     }
 
@@ -161,15 +193,15 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       if (!running) return;
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
+      elapsed += dt;
       ctx!.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.rot += p.vr * dt;
-        if (p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
-          Object.assign(p, spawn(false));
-        }
-        drawTriangle(p);
+      for (const b of boats) {
+        b.x += b.vx * dt;
+        // Wrap around horizontally so a boat that drifts off one edge
+        // re-enters from the opposite edge with a fresh waterline.
+        if (b.vx > 0 && b.x > w + b.size * 3) Object.assign(b, spawn(false), { x: -b.size * 3 });
+        else if (b.vx < 0 && b.x < -b.size * 3) Object.assign(b, spawn(false), { x: w + b.size * 3 });
+        drawBoat(b, elapsed);
       }
       raf = requestAnimationFrame(frame);
     }
@@ -188,7 +220,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
     function staticRender() {
       ctx!.clearRect(0, 0, w, h);
-      for (const p of particles) drawTriangle(p);
+      for (const b of boats) drawBoat(b, 0);
     }
 
     resize();
