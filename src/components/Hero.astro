@@ -102,8 +102,49 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
     let lastT = 0;
     let elapsed = 0;
     let w = 0, h = 0;
+    // Horizontal sailing band centered on the hero logo. Boats drift
+    // left-to-right across the canvas inside this band, fading out
+    // where they would otherwise draw over the wordmark itself.
+    let bandTop = 0, bandBottom = 0;
+    let logoLeft = 0, logoRight = 0, logoTop = 0, logoBottom = 0;
 
     const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+
+    function measureHalo() {
+      const heroLogo = document.querySelector<HTMLImageElement>(
+        'section.relative.overflow-hidden img[src="/keel-logo.png"]'
+      );
+      const subhead = document.querySelector<HTMLParagraphElement>(
+        'section.relative.overflow-hidden p.mt-5'
+      );
+      const canvasRect = canvas!.getBoundingClientRect();
+      if (heroLogo) {
+        const r = heroLogo.getBoundingClientRect();
+        const cy = (r.top + r.bottom) / 2 - canvasRect.top;
+        const halfH = r.height / 2;
+        // Asymmetric: extend the band well above the logo (covers the
+        // eyebrow area) and just past the logo's bottom edge.
+        bandTop = cy - halfH * 2.6;
+        bandBottom = cy + halfH * 1.3;
+        // Clamp bottom so the band never reaches the subhead — boats
+        // stay above body copy regardless of viewport / logo size.
+        if (subhead) {
+          const subTop = subhead.getBoundingClientRect().top - canvasRect.top;
+          bandBottom = Math.min(bandBottom, subTop - 12);
+        }
+        logoLeft = r.left - canvasRect.left;
+        logoRight = r.right - canvasRect.left;
+        logoTop = r.top - canvasRect.top;
+        logoBottom = r.bottom - canvasRect.top;
+      } else {
+        bandTop = h * 0.18;
+        bandBottom = h * 0.55;
+        logoLeft = w * 0.3;
+        logoRight = w * 0.7;
+        logoTop = h * 0.25;
+        logoBottom = h * 0.5;
+      }
+    }
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
@@ -113,30 +154,33 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       canvas!.width = Math.floor(w * r);
       canvas!.height = Math.floor(h * r);
       ctx!.setTransform(r, 0, 0, r, 0, 0);
+      measureHalo();
       seed();
     }
 
     function seed() {
-      const area = w * h;
-      // Sailboats are larger and more recognisable than triangles, so
-      // density is lower — too many feels busy.
-      const count = Math.max(8, Math.min(28, Math.round(area / 36000)));
+      // Density scales with band area — a wide hero gets more boats
+      // so the spacing stays roughly constant.
+      const bandH = Math.max(1, bandBottom - bandTop);
+      const count = Math.max(6, Math.min(20, Math.round((w * bandH) / 22000)));
       boats = [];
       for (let i = 0; i < count; i++) boats.push(spawn(true));
     }
 
     function spawn(initial: boolean): Boat {
-      const size = 9 + Math.random() * 9;
-      const dir = Math.random() < 0.5 ? -1 : 1;
-      const x = initial ? Math.random() * w : (dir > 0 ? -size * 3 : w + size * 3);
-      const baseY = size * 2.5 + Math.random() * (h - size * 5);
+      const size = 8 + Math.random() * 6;
+      // On respawn, slot in just off the left edge so boats appear to
+      // sail in from the left. On initial seed, scatter across the
+      // full canvas width so the band starts populated.
+      const x = initial ? Math.random() * w : -size * 3 - Math.random() * 60;
+      const baseY = bandTop + Math.random() * (bandBottom - bandTop);
       return {
         x,
         baseY,
-        vx: dir * (4 + Math.random() * 8),
+        vx: 4 + Math.random() * 7,
         size,
-        alpha: 0.18 + Math.random() * 0.22,
-        bobAmp: 2 + Math.random() * 4,
+        alpha: 0.22 + Math.random() * 0.22,
+        bobAmp: 1.5 + Math.random() * 2.5,
         bobFreq: 0.6 + Math.random() * 0.8,
         bobPhase: Math.random() * Math.PI * 2,
       };
@@ -146,18 +190,33 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       const { x, baseY, size, alpha, bobAmp, bobFreq, bobPhase } = b;
       const bob = Math.sin(t * bobFreq + bobPhase);
       const y = baseY + bob * bobAmp;
-      const roll = bob * 0.06; // small tilt synced with the bob
+      const roll = bob * 0.08;
 
-      // Fade boats inside a centered "no-go" radius so they don't crowd
-      // the logo and headline.
-      const cx = w / 2;
-      const cy = h / 2;
-      const dx = x - cx;
-      const dy = y - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const safeRadius = Math.min(w, h) * 0.32;
-      const fade = Math.min(1, Math.max(0, (dist - safeRadius) / (Math.min(w, h) * 0.18)));
-      const a = alpha * fade;
+      // Soft fade at the top and bottom of the band so boats don't
+      // pop in/out at the edges of the sailing strip.
+      const bandFadeH = Math.max(20, (bandBottom - bandTop) * 0.18);
+      const topFade = Math.min(1, Math.max(0, (y - bandTop) / bandFadeH));
+      const botFade = Math.min(1, Math.max(0, (bandBottom - y) / bandFadeH));
+      // Hide boats over the wordmark itself, with a small blur margin
+      // so they fade into / out of the logo area rather than disappear.
+      const margin = 18;
+      let logoFade = 1;
+      if (
+        x + size * 1.4 > logoLeft - margin &&
+        x - size * 1.4 < logoRight + margin &&
+        y + size * 0.6 > logoTop - margin &&
+        y - size * 2.0 < logoBottom + margin
+      ) {
+        const dxL = (logoLeft - margin) - (x + size * 1.4);
+        const dxR = (x - size * 1.4) - (logoRight + margin);
+        const closestX = Math.max(dxL, dxR);
+        const dyT = (logoTop - margin) - (y + size * 0.6);
+        const dyB = (y - size * 2.0) - (logoBottom + margin);
+        const closestY = Math.max(dyT, dyB);
+        const closest = Math.max(closestX, closestY);
+        logoFade = Math.min(1, Math.max(0, (closest + margin) / margin));
+      }
+      const a = alpha * topFade * botFade * logoFade;
       if (a <= 0.01) return;
 
       ctx!.save();
@@ -197,10 +256,9 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       ctx!.clearRect(0, 0, w, h);
       for (const b of boats) {
         b.x += b.vx * dt;
-        // Wrap around horizontally so a boat that drifts off one edge
-        // re-enters from the opposite edge with a fresh waterline.
-        if (b.vx > 0 && b.x > w + b.size * 3) Object.assign(b, spawn(false), { x: -b.size * 3 });
-        else if (b.vx < 0 && b.x < -b.size * 3) Object.assign(b, spawn(false), { x: w + b.size * 3 });
+        // Boat sailed off the right edge — respawn it just off the
+        // left edge with a fresh waterline inside the band.
+        if (b.x > w + b.size * 4) Object.assign(b, spawn(false));
         drawBoat(b, elapsed);
       }
       raf = requestAnimationFrame(frame);
