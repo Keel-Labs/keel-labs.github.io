@@ -31,16 +31,16 @@ const releasesUrl = `${ghRepoUrl}/releases/latest`;
 ---
 
 <header class="sticky top-0 z-40 w-full border-b border-ink-200/70 bg-ink-50/80 backdrop-blur dark:border-ink-800/60 dark:bg-ink-950/80">
-  <div class="container-narrow flex h-16 items-center justify-between gap-4">
+  <div class="container-narrow relative flex h-16 items-center justify-between gap-4">
     <a href="/" class="flex items-center" aria-label="Keel">
       <img src="/keel-logo.png" alt="Keel" class="h-9 w-auto" />
     </a>
 
-    <nav class="hidden items-center gap-7 md:flex">
+    <nav class="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-7 md:flex">
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-sm text-ink-600 transition hover:text-accent dark:text-ink-300 dark:hover:text-accent"
+          class="whitespace-nowrap text-sm text-ink-600 transition hover:text-accent dark:text-ink-300 dark:hover:text-accent"
         >
           {link.label}
         </a>
