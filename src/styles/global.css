@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+}
+
+@layer components {
+  .container-narrow {
+    @apply mx-auto max-w-6xl px-6;
+  }
+
+  /* Primary CTA: warm terracotta accent. Used sparingly. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40;
+  }
+
+  /* Secondary: outlined neutral pill. */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-ink-300 bg-transparent px-5 py-3 text-sm font-medium text-ink-900 transition hover:border-ink-400 hover:bg-ink-100 dark:border-ink-700 dark:text-ink-100 dark:hover:border-ink-600 dark:hover:bg-ink-800;
+  }
+
+  /* Tertiary text-style CTA. */
+  .btn-text {
+    @apply inline-flex items-center gap-1 text-sm font-medium text-ink-700 transition hover:text-accent dark:text-ink-300 dark:hover:text-accent;
+  }
+
+  .section {
+    @apply py-24 md:py-32;
+  }
+
+  /* Small all-caps section eyebrow, paired with the big numeric label. */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-500 dark:text-ink-400;
+  }
+
+  /* Editorial-feeling section number (e.g. "01", "02"). */
+  .section-num {
+    @apply font-serif text-6xl font-light leading-none text-ink-300 md:text-7xl dark:text-ink-700;
+  }
+
+  /* Tag / pill — soft accent fill, accent text. */
+  .tag {
+    @apply inline-flex items-center rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-accent-700 dark:bg-accent/15 dark:text-accent-300;
+  }
+
+  .tag-neutral {
+    @apply inline-flex items-center rounded-full bg-ink-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-ink-600 dark:bg-ink-800 dark:text-ink-300;
+  }
+}

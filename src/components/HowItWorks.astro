@@ -1,0 +1,43 @@
+---
+const nodes = [
+  {
+    title: 'Markdown workspace',
+    body: 'A folder on your disk — typically ~/Keel — full of plain markdown. Project notes, daily logs, wiki bases, tasks. Edit it in any editor. Back it up yourself.',
+  },
+  {
+    title: 'Keel context engine',
+    body: 'Indexes your workspace, assembles relevant context for every conversation, and writes captures, decisions, and tasks back as markdown.',
+  },
+  {
+    title: 'Your chosen LLM',
+    body: 'Claude, GPT, OpenRouter, or a local model via Ollama. Swap providers in settings; fall back automatically when one is down.',
+  },
+];
+---
+
+<section id="how" class="section">
+  <div class="container-narrow">
+    <div class="max-w-3xl">
+      <div class="flex items-baseline gap-5">
+        <span class="section-num">01</span>
+        <span class="eyebrow">How it works</span>
+      </div>
+      <h2 class="mt-8 text-3xl font-semibold tracking-tight text-ink-900 dark:text-white md:text-5xl">
+        Your context stays. The model is just a tenant.
+      </h2>
+      <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-600 dark:text-ink-300">
+        Three pieces. Two of them belong to you.
+      </p>
+    </div>
+
+    <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-ink-200 bg-ink-200 md:grid-cols-3 dark:border-ink-800 dark:bg-ink-800">
+      {nodes.map((n, i) => (
+        <div class="bg-white p-8 dark:bg-ink-900 md:p-10">
+          <span class="text-xs font-mono text-accent">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="mt-6 text-lg font-semibold tracking-tight">{n.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-ink-600 dark:text-ink-300">{n.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,43 @@
+---
+const stories = [
+  {
+    tag: 'Daily',
+    title: 'From morning brief to EOD wrap',
+    body: 'Land somewhere useful instead of an empty chat. Keel generates a morning brief from your workspace, surfaces open tasks and yesterday\'s loose ends, then writes a structured end-of-day summary back into your daily log.',
+  },
+  {
+    tag: 'Knowledge',
+    title: 'Per-project knowledge bases',
+    body: 'Turn any project folder into a queryable wiki with /create-kb and /refresh-kb. Keel ingests your markdown and PDFs, compiles them into a structured base, and keeps it in sync as files change.',
+  },
+  {
+    tag: 'Meetings',
+    title: 'Meetings → structured notes',
+    body: 'Record a meeting (or import audio). Keel transcribes locally with Whisper, then writes a structured summary — decisions, action items, attendees — back into the relevant project.',
+  },
+];
+---
+
+<section class="section">
+  <div class="container-narrow">
+    <div class="max-w-3xl">
+      <div class="flex items-baseline gap-5">
+        <span class="section-num">02</span>
+        <span class="eyebrow">Use cases</span>
+      </div>
+      <h2 class="mt-8 text-3xl font-semibold tracking-tight text-ink-900 dark:text-white md:text-5xl">
+        Three of the things people use Keel for every day.
+      </h2>
+    </div>
+
+    <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-ink-200 bg-ink-200 md:grid-cols-3 dark:border-ink-800 dark:bg-ink-800">
+      {stories.map((s) => (
+        <div class="flex flex-col bg-white p-8 dark:bg-ink-900 md:p-10">
+          <span class="tag self-start">{s.tag}</span>
+          <h3 class="mt-6 text-xl font-semibold tracking-tight md:text-2xl">{s.title}</h3>
+          <p class="mt-4 text-sm leading-relaxed text-ink-600 dark:text-ink-300">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

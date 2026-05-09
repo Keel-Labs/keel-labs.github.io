@@ -1,0 +1,68 @@
+---
+const features = [
+  {
+    tag: 'Capture',
+    title: 'Auto-capture',
+    body: 'When a chat produces something worth keeping — a decision, a fact, a new task — Keel quietly saves it back into your workspace.',
+  },
+  {
+    tag: 'Wiki',
+    title: 'Wiki bases',
+    body: 'Turn any project folder into a structured, queryable knowledge base. Markdown and PDFs in; clean compiled context out.',
+  },
+  {
+    tag: 'Surface',
+    title: 'Dashboard',
+    body: 'Open tasks, reminders, the morning brief, weather, and recent activity — surfaced on launch so the day starts with momentum.',
+  },
+  {
+    tag: 'Tasks',
+    title: 'Tasks & reminders',
+    body: 'First-class to-dos backed by markdown, with due dates, projects, and time-based reminders that fire as desktop notifications.',
+  },
+  {
+    tag: 'Audio',
+    title: 'Meeting transcription',
+    body: 'Record or import audio. Local Whisper transcribes; Keel writes decisions, action items, and attendees back into the right project.',
+  },
+  {
+    tag: 'Voice',
+    title: 'Voice input',
+    body: 'Speak instead of type, using local Whisper or OpenAI\'s API.',
+  },
+  {
+    tag: 'Schedule',
+    title: 'Scheduled jobs',
+    body: 'Run any prompt or workflow on a recurring schedule — daily digests, weekly reviews, custom check-ins — captured back to disk.',
+  },
+  {
+    tag: 'Integrations',
+    title: 'Google + X integrations',
+    body: 'Sync Calendar events into context, read and export Google Docs, sync X bookmarks into a wiki, or publish posts from chat.',
+  },
+];
+---
+
+<section id="features" class="section">
+  <div class="container-narrow">
+    <div class="max-w-3xl">
+      <div class="flex items-baseline gap-5">
+        <span class="section-num">04</span>
+        <span class="eyebrow">Capabilities</span>
+      </div>
+      <h2 class="mt-8 text-3xl font-semibold tracking-tight text-ink-900 dark:text-white md:text-5xl">
+        Everything a chief-of-staff would do, on your machine.
+      </h2>
+    </div>
+
+    <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-ink-200 bg-ink-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-ink-800 dark:bg-ink-800">
+      {features.map((f) => (
+        <div class="flex flex-col bg-white p-7 dark:bg-ink-900">
+          <span class="tag self-start">{f.tag}</span>
+          <h3 class="mt-5 text-base font-semibold tracking-tight">{f.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-300">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
