@@ -5,38 +5,28 @@ const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/
 const githubUrl = 'https://github.com/Keel-Labs/keel';
 ---
 
-<section class="relative overflow-hidden">
-  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-white via-ink-50 to-white dark:from-ink-950 dark:via-ink-900 dark:to-ink-950"></div>
-  <div class="container-narrow pt-20 pb-16 md:pt-28 md:pb-24">
-    <div class="mx-auto max-w-3xl text-center">
-      <p class="eyebrow mb-4">Local-first AI for macOS</p>
-      <h1 class="text-balance text-4xl font-semibold tracking-tight text-ink-900 dark:text-white md:text-6xl">
+<section class="relative">
+  <div class="container-narrow pt-24 pb-20 md:pt-36 md:pb-32">
+    <div class="max-w-3xl">
+      <p class="eyebrow mb-6">Local-first AI for macOS</p>
+      <h1 class="text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-ink-900 dark:text-white md:text-7xl">
         An AI assistant whose memory belongs to you.
       </h1>
-      <p class="mx-auto mt-6 max-w-2xl text-pretty text-lg text-ink-600 dark:text-ink-300 md:text-xl">
+      <p class="mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-ink-600 dark:text-ink-300 md:text-xl">
         Local-first Mac app. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays.
       </p>
-      <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
+      <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
         <a href={downloadUrl} class="btn-primary">Download for macOS</a>
-        <a href={githubUrl} class="btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
-        <a href={demoUrl} class="text-sm font-medium text-ink-700 underline-offset-4 hover:underline dark:text-ink-300" target="_blank" rel="noopener">
-          Watch demo &rarr;
+        <a href={githubUrl} class="btn-text" target="_blank" rel="noopener">
+          View on GitHub <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a href={demoUrl} class="btn-text" target="_blank" rel="noopener">
+          Watch demo <span aria-hidden="true">&rarr;</span>
         </a>
       </div>
-      <p class="mt-4 text-xs text-ink-500 dark:text-ink-400">
+      <p class="mt-5 text-xs text-ink-500 dark:text-ink-400">
         Open source (MIT). No telemetry. No account.
       </p>
-    </div>
-
-    <div class="mt-14 md:mt-20">
-      <div class="rounded-2xl border border-ink-200 bg-white p-2 shadow-xl shadow-ink-900/5 dark:border-ink-800 dark:bg-ink-900">
-        <img
-          src="https://github.com/user-attachments/assets/afdce370-2210-45a0-8008-f078bb893000"
-          alt="Keel — chat with your local markdown workspace"
-          class="rounded-xl"
-          loading="eager"
-        />
-      </div>
     </div>
   </div>
 </section>

@@ -7,17 +7,17 @@ const navLinks = [
 ];
 ---
 
-<header class="sticky top-0 z-40 w-full border-b border-ink-200/60 bg-white/80 backdrop-blur dark:border-ink-800/60 dark:bg-ink-950/80">
+<header class="sticky top-0 z-40 w-full border-b border-ink-200/70 bg-ink-50/80 backdrop-blur dark:border-ink-800/60 dark:bg-ink-950/80">
   <div class="container-narrow flex h-16 items-center justify-between">
     <a href="/" class="flex items-center gap-2.5">
-      <img src="/keel-badge.png" alt="" width="28" height="28" class="rounded" />
+      <img src="/keel-badge.png" alt="" width="26" height="26" class="rounded" />
       <span class="text-base font-semibold tracking-tight">Keel</span>
     </a>
-    <nav class="hidden items-center gap-7 md:flex">
+    <nav class="hidden items-center gap-8 md:flex">
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-sm text-ink-600 transition hover:text-ink-900 dark:text-ink-300 dark:hover:text-white"
+          class="text-sm text-ink-600 transition hover:text-accent dark:text-ink-300 dark:hover:text-accent"
           {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
         >
           {link.label}
@@ -26,7 +26,7 @@ const navLinks = [
     </nav>
     <a
       href="https://github.com/Keel-Labs/keel/releases/latest"
-      class="btn-primary !py-2 !px-3.5 text-xs"
+      class="btn-primary !py-2 !px-4 text-xs"
     >
       Download
     </a>

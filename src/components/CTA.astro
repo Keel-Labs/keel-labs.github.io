@@ -5,23 +5,18 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
 <section class="section">
   <div class="container-narrow">
-    <div class="relative overflow-hidden rounded-3xl bg-ink-900 p-12 text-center text-white md:p-20 dark:bg-ink-100 dark:text-ink-900">
-      <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.18),transparent_60%)]"></div>
-      <div class="relative">
-        <h2 class="text-balance text-3xl font-semibold tracking-tight md:text-5xl">
-          Bring your memory home.
-        </h2>
-        <p class="mx-auto mt-5 max-w-xl text-base text-ink-300 md:text-lg dark:text-ink-700">
-          Universal DMG for Apple Silicon and Intel. Open source. MIT licensed.
-        </p>
-        <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <a href={downloadUrl} class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3.5 text-sm font-medium text-ink-900 transition hover:bg-ink-100 dark:bg-ink-900 dark:text-white dark:hover:bg-ink-800">
-            Download for macOS
-          </a>
-          <a href={githubUrl} class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10 dark:border-ink-900/20 dark:text-ink-900 dark:hover:bg-ink-900/5" target="_blank" rel="noopener">
-            ★ Star on GitHub
-          </a>
-        </div>
+    <div class="max-w-3xl">
+      <h2 class="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-900 dark:text-white md:text-6xl">
+        Bring your memory home.
+      </h2>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-600 dark:text-ink-300">
+        Universal DMG for Apple Silicon and Intel. Open source. MIT licensed.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <a href={downloadUrl} class="btn-primary">Download for macOS</a>
+        <a href={githubUrl} class="btn-text" target="_blank" rel="noopener">
+          Star on GitHub <span aria-hidden="true">&rarr;</span>
+        </a>
       </div>
     </div>
   </div>
