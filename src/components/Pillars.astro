@@ -1,0 +1,29 @@
+---
+const pillars = [
+  {
+    title: 'Own your context',
+    body: 'Your notes, captures, projects, and history live in plain markdown in a folder you control. Not a database row inside someone else\'s cloud.',
+  },
+  {
+    title: 'Pick your model',
+    body: 'Claude today, GPT tomorrow, a local Llama on a flight. The assistant changes; your brain doesn\'t.',
+  },
+  {
+    title: 'Local-first',
+    body: 'No telemetry. No account. No server. Your workspace never leaves your machine unless you explicitly ask it to.',
+  },
+];
+---
+
+<section class="section">
+  <div class="container-narrow">
+    <div class="grid gap-6 md:grid-cols-3">
+      {pillars.map((p) => (
+        <div class="rounded-2xl border border-ink-200 bg-white p-7 dark:border-ink-800 dark:bg-ink-900">
+          <h3 class="text-lg font-semibold tracking-tight">{p.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-ink-600 dark:text-ink-300">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

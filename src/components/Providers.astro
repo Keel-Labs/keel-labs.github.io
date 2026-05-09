@@ -1,0 +1,24 @@
+---
+const providers = [
+  { name: 'Claude', sub: 'Anthropic' },
+  { name: 'GPT', sub: 'OpenAI' },
+  { name: 'OpenRouter', sub: '300+ models' },
+  { name: 'Ollama', sub: 'Local & offline' },
+];
+---
+
+<section class="border-y border-ink-200 bg-ink-50/50 py-14 dark:border-ink-800 dark:bg-ink-900/40">
+  <div class="container-narrow">
+    <p class="text-center text-sm font-medium uppercase tracking-wider text-ink-500 dark:text-ink-400">
+      One harness. Any model. No lock-in.
+    </p>
+    <div class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+      {providers.map((p) => (
+        <div class="flex flex-col items-center justify-center rounded-xl border border-ink-200 bg-white px-6 py-5 text-center dark:border-ink-800 dark:bg-ink-950">
+          <span class="text-base font-semibold tracking-tight text-ink-900 dark:text-white">{p.name}</span>
+          <span class="mt-0.5 text-xs text-ink-500 dark:text-ink-400">{p.sub}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
