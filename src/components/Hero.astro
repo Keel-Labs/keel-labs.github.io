@@ -106,6 +106,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
     // left-to-right across the canvas inside this band, fading out
     // where they would otherwise draw over the wordmark itself.
     let bandTop = 0, bandBottom = 0;
+    let bandLeft = 0, bandRight = 0;
     let logoLeft = 0, logoRight = 0, logoTop = 0, logoBottom = 0;
 
     const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
@@ -137,6 +138,13 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
         logoRight = r.right - canvasRect.left;
         logoTop = r.top - canvasRect.top;
         logoBottom = r.bottom - canvasRect.top;
+        // Horizontal halo: boats fade in a few inches left of the
+        // logo and fade out symmetrically on the right. Margin scales
+        // with the logo width but has a minimum so it still feels
+        // natural at small viewports.
+        const haloMargin = Math.max(120, r.width * 0.35);
+        bandLeft = logoLeft - haloMargin;
+        bandRight = logoRight + haloMargin;
       } else {
         bandTop = h * 0.18;
         bandBottom = h * 0.55;
@@ -144,6 +152,8 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
         logoRight = w * 0.7;
         logoTop = h * 0.25;
         logoBottom = h * 0.5;
+        bandLeft = w * 0.15;
+        bandRight = w * 0.85;
       }
     }
 
@@ -170,10 +180,12 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
     function spawn(initial: boolean): Boat {
       const size = 5 + Math.random() * 4;
-      // On respawn, slot in just off the left edge so boats appear to
-      // sail in from the left. On initial seed, scatter across the
-      // full canvas width so the band starts populated.
-      const x = initial ? Math.random() * w : -size * 3 - Math.random() * 60;
+      // Stay inside the horizontal halo: respawn just past the halo's
+      // left edge so the boat fades back in on entry; initial seed
+      // distributes across the halo so it starts populated.
+      const x = initial
+        ? bandLeft + Math.random() * (bandRight - bandLeft)
+        : bandLeft - size * 3 - Math.random() * 30;
       const baseY = bandTop + Math.random() * (bandBottom - bandTop);
       return {
         x,
@@ -198,6 +210,13 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       const bandFadeH = Math.max(20, (bandBottom - bandTop) * 0.18);
       const topFade = Math.min(1, Math.max(0, (y - bandTop) / bandFadeH));
       const botFade = Math.min(1, Math.max(0, (bandBottom - y) / bandFadeH));
+      // Horizontal halo: sin bell so boats fade in on the left, peak
+      // around the logo, and fade out symmetrically on the right.
+      const halfHaloW = (bandRight - bandLeft) / 2;
+      const dxFromCenter = Math.abs(x - (bandLeft + halfHaloW));
+      const xFade = dxFromCenter >= halfHaloW
+        ? 0
+        : Math.sin((1 - dxFromCenter / halfHaloW) * Math.PI / 2);
       // Hide boats over the wordmark itself, with a small blur margin
       // so they fade into / out of the logo area rather than disappear.
       const margin = 18;
@@ -217,7 +236,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
         const closest = Math.max(closestX, closestY);
         logoFade = Math.min(1, Math.max(0, (closest + margin) / margin));
       }
-      const a = alpha * topFade * botFade * logoFade;
+      const a = alpha * topFade * botFade * logoFade * xFade;
       if (a <= 0.01) return;
 
       ctx!.save();
@@ -257,9 +276,10 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
       ctx!.clearRect(0, 0, w, h);
       for (const b of boats) {
         b.x += b.vx * dt;
-        // Boat sailed off the right edge — respawn it just off the
-        // left edge with a fresh waterline inside the band.
-        if (b.x > w + b.size * 4) Object.assign(b, spawn(false));
+        // Once a boat passes the halo's right edge it has fully faded
+        // out — respawn it just past the left edge with a fresh
+        // waterline so it fades back in on entry.
+        if (b.x > bandRight + b.size * 3) Object.assign(b, spawn(false));
         drawBoat(b, elapsed);
       }
       raf = requestAnimationFrame(frame);
