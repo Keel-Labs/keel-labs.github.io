@@ -1,13 +1,23 @@
 ---
 const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg';
 const githubUrl = 'https://github.com/Keel-Labs/keel';
+// Words rotated by the small client-side script below. Order kept in sync
+// with the data-rotate attribute so the static HTML matches the first word
+// shown to no-JS users / search crawlers.
+const rotatingWords = ['memory', 'context', 'agents', 'AI', 'history', 'ideas'];
 ---
 
 <section class="section">
   <div class="container-narrow">
     <div class="max-w-3xl">
       <h2 class="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-900 dark:text-white md:text-6xl">
-        Bring your memory home.
+        Bring your{' '}
+        <span
+          class="rotating-word text-accent"
+          data-rotate={rotatingWords.join('|')}
+          aria-live="polite"
+        >{rotatingWords[0]}</span>{' '}
+        home.
       </h2>
       <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-600 dark:text-ink-300">
         Universal DMG for Apple Silicon and Intel. Open source. MIT licensed.
@@ -21,3 +31,52 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
     </div>
   </div>
 </section>
+
+<script>
+  (() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduceMotion.matches) return;
+
+    const els = document.querySelectorAll<HTMLElement>('.rotating-word[data-rotate]');
+    els.forEach((el) => {
+      const words = (el.dataset.rotate || '').split('|').filter(Boolean);
+      if (words.length < 2) return;
+
+      // Reserve a modest min-width sized for the longest word in the list so
+      // "home." doesn't slide around as words swap. Multiplier tuned for
+      // bold display weight at this heading size.
+      const longest = Math.max(...words.map((w) => w.length));
+      el.style.display = 'inline-block';
+      el.style.minWidth = `${longest * 0.48}em`;
+      el.style.textAlign = 'center';
+      el.style.transition = 'opacity 220ms ease, transform 220ms ease';
+      el.style.willChange = 'opacity, transform';
+
+      let idx = 0;
+      const tick = () => {
+        // fade out
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        window.setTimeout(() => {
+          idx = (idx + 1) % words.length;
+          el.textContent = words[idx];
+          // reset to bottom, then fade in
+          el.style.transform = 'translateY(6px)';
+          // force reflow so the next transition kicks in
+          void el.offsetWidth;
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, 240);
+      };
+
+      let timer = window.setInterval(tick, 2200);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          window.clearInterval(timer);
+        } else {
+          timer = window.setInterval(tick, 2200);
+        }
+      });
+    });
+  })();
+</script>
