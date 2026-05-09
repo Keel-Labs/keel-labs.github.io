@@ -23,6 +23,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Build with Astro
         uses: withastro/action@v3
+        env:
+          # Used by src/lib/release.ts (and the star-count fetch in
+          # Header.astro) so build-time GitHub API calls get the
+          # authenticated 5k/hr quota instead of the 60/hr cap.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Deploy
