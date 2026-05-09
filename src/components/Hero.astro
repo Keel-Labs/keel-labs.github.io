@@ -5,9 +5,15 @@ const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/
 const githubUrl = 'https://github.com/Keel-Labs/keel';
 ---
 
-<section class="relative">
-  <div class="container-narrow pt-24 pb-20 md:pt-36 md:pb-32">
-    <div class="max-w-3xl">
+<section class="relative overflow-hidden">
+  <canvas
+    id="hero-particles"
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-y-0 right-0 hidden lg:block"
+    style="width: 55%; height: 100%;"
+  ></canvas>
+  <div class="container-narrow relative pt-24 pb-20 md:pt-36 md:pb-32">
+    <div class="relative max-w-3xl">
       <p class="eyebrow mb-6">Local-first AI for macOS</p>
       <h1 class="text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-ink-900 dark:text-white md:text-7xl">
         An AI assistant whose memory belongs to you.
@@ -30,3 +36,129 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
     </div>
   </div>
 </section>
+
+<script>
+  (() => {
+    const canvas = document.getElementById('hero-particles') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    type P = { x: number; y: number; vx: number; vy: number; size: number; alpha: number; rot: number; vr: number };
+    let particles: P[] = [];
+    let raf = 0;
+    let running = false;
+    let lastT = 0;
+    let w = 0, h = 0;
+
+    const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+
+    function resize() {
+      const rect = canvas!.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      const r = dpr();
+      canvas!.width = Math.floor(w * r);
+      canvas!.height = Math.floor(h * r);
+      ctx!.setTransform(r, 0, 0, r, 0, 0);
+      seed();
+    }
+
+    function seed() {
+      const area = w * h;
+      // density: ~1 per 9000px², capped
+      const count = Math.max(20, Math.min(120, Math.round(area / 9000)));
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(spawn(true));
+    }
+
+    function spawn(initial: boolean): P {
+      // bias x toward the right edge; fade as we go left
+      const bias = Math.pow(Math.random(), 0.6); // skews toward 1
+      const x = initial ? w * (1 - bias) * 0.95 + w * 0.05 : w + Math.random() * 40;
+      const y = Math.random() * h;
+      const size = 3 + Math.random() * 5;
+      return {
+        x,
+        y,
+        vx: -8 - Math.random() * 14, // px/sec, drifting left
+        vy: -3 + Math.random() * 6,
+        size,
+        alpha: 0.15 + Math.random() * 0.35,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.4,
+      };
+    }
+
+    function drawTriangle(p: P) {
+      const { x, y, size, rot, alpha } = p;
+      // fade out as particle approaches left edge of canvas
+      const edgeFade = Math.min(1, x / (w * 0.5));
+      const a = alpha * edgeFade;
+      if (a <= 0.01) return;
+      ctx!.save();
+      ctx!.translate(x, y);
+      ctx!.rotate(rot);
+      ctx!.beginPath();
+      ctx!.moveTo(size, 0);
+      ctx!.lineTo(-size * 0.6, size * 0.55);
+      ctx!.lineTo(-size * 0.6, -size * 0.55);
+      ctx!.closePath();
+      ctx!.fillStyle = `rgba(207, 122, 92, ${a})`;
+      ctx!.fill();
+      ctx!.restore();
+    }
+
+    function frame(t: number) {
+      if (!running) return;
+      const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
+      lastT = t;
+      ctx!.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+        if (p.x < -10 || p.y < -10 || p.y > h + 10) {
+          // respawn from right edge
+          Object.assign(p, spawn(false));
+          p.x = w + Math.random() * 30;
+        }
+        drawTriangle(p);
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running || reduceMotion.matches) return;
+      running = true;
+      lastT = 0;
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+    }
+
+    function staticRender() {
+      ctx!.clearRect(0, 0, w, h);
+      for (const p of particles) drawTriangle(p);
+    }
+
+    resize();
+    window.addEventListener('resize', () => {
+      resize();
+      if (reduceMotion.matches) staticRender();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else start();
+    });
+    reduceMotion.addEventListener?.('change', () => {
+      if (reduceMotion.matches) { stop(); staticRender(); } else start();
+    });
+
+    if (reduceMotion.matches) staticRender(); else start();
+  })();
+</script>
