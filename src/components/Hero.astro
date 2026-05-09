@@ -1,5 +1,6 @@
 ---
 const demoEmbedUrl = 'https://www.loom.com/embed/29c1407fc2944b1fb5c6c1bbc953831b';
+const demoPosterUrl = '/keel-demo-poster.jpg';
 const downloadUrl = 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg';
 const githubUrl = 'https://github.com/Keel-Labs/keel';
 ---
@@ -32,14 +33,25 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
         <a href={githubUrl} class="btn-secondary" target="_blank" rel="noopener">
           View and Star on GitHub
         </a>
-        <button id="watch-demo-btn" type="button" class="btn-secondary">
-          Watch Demo
-        </button>
       </div>
 
       <p class="mt-4 text-xs text-ink-500 dark:text-ink-400">
         Open source (MIT). No telemetry. No account.
       </p>
+
+      <button
+        type="button"
+        class="js-watch-demo demo-poster mt-10 w-full max-w-3xl"
+        aria-label="Watch Keel demo"
+      >
+        <span class="demo-poster__frame" style={`background-image: url(${demoPosterUrl})`}>
+          <span class="demo-poster__play" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -197,20 +209,21 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
   // Demo modal — load the iframe lazily on first open so the page doesn't
   // pay for a Loom embed unless the user clicks Watch Demo.
   (() => {
-    const btn = document.getElementById('watch-demo-btn') as HTMLButtonElement | null;
+    const triggers = document.querySelectorAll<HTMLButtonElement>('.js-watch-demo');
     const closeBtn = document.getElementById('close-demo-btn') as HTMLButtonElement | null;
     const modal = document.getElementById('demo-modal') as HTMLDialogElement | null;
     const iframe = document.getElementById('demo-iframe') as HTMLIFrameElement | null;
-    if (!btn || !closeBtn || !modal || !iframe) return;
+    if (!triggers.length || !closeBtn || !modal || !iframe) return;
 
-    btn.addEventListener('click', () => {
+    const open = () => {
       const src = iframe.dataset.src || '';
       if (iframe.getAttribute('src') !== src && src) {
         iframe.setAttribute('src', src);
       }
       if (typeof modal.showModal === 'function') modal.showModal();
       else modal.setAttribute('open', '');
-    });
+    };
+    triggers.forEach((t) => t.addEventListener('click', open));
 
     const close = () => {
       if (typeof modal.close === 'function') modal.close();
