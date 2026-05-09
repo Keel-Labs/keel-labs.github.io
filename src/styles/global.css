@@ -56,4 +56,32 @@
   .tag-neutral {
     @apply inline-flex items-center rounded-full bg-ink-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-ink-600 dark:bg-ink-800 dark:text-ink-300;
   }
+
+  /* Demo video modal — uses native <dialog>. */
+  .demo-modal {
+    @apply m-0 w-[min(92vw,960px)] max-w-none rounded-2xl border border-ink-200 bg-ink-50 p-0 shadow-2xl dark:border-ink-800 dark:bg-ink-900;
+    /* Override <dialog>'s default white bg + center it over the backdrop. */
+    inset: 0;
+    margin: auto;
+  }
+
+  .demo-modal::backdrop {
+    background: rgba(15, 14, 10, 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  .demo-modal__close {
+    @apply absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink-100 text-ink-700 transition hover:bg-ink-200 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-ink-700;
+  }
+
+  .demo-modal__embed {
+    @apply relative w-full overflow-hidden rounded-2xl;
+    padding-bottom: 62.5%;
+    height: 0;
+  }
+
+  .demo-modal__embed iframe {
+    @apply absolute left-0 top-0 h-full w-full;
+    border: 0;
+  }
 }
