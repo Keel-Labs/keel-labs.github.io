@@ -1,5 +1,5 @@
 ---
-import { getLatestRelease } from '../lib/release';
+import { getLatestRelease, getStarCount } from '../lib/release';
 
 const navLinks = [
   { href: '#how', label: 'How it works' },
@@ -9,31 +9,13 @@ const navLinks = [
   { href: '#about', label: 'About' },
 ];
 
-// Fetch the live star count at build time. Re-runs on every push to main
-// (the deploy workflow does a fresh build), and falls back gracefully if
-// GitHub's API rate-limits or errors.
-let starCount = '';
-try {
-  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  const token = typeof process !== 'undefined' ? process.env?.GITHUB_TOKEN : '';
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch('https://api.github.com/repos/Keel-Labs/keel', { headers });
-  if (res.ok) {
-    const data = await res.json();
-    if (typeof data.stargazers_count === 'number') {
-      starCount = new Intl.NumberFormat('en-US').format(data.stargazers_count);
-    }
-  }
-} catch {
-  // ignore — render the button without a count
-}
-
 const ghRepoUrl = 'https://github.com/Keel-Labs/keel';
 const ghStargazersUrl = `${ghRepoUrl}/stargazers`;
 const sponsorUrl = 'https://github.com/sponsors/medha';
 
 const release = await getLatestRelease();
 const downloadUrl = release.dmgUrl;
+const starCount = await getStarCount();
 ---
 
 <header class="sticky top-0 z-40 w-full border-b border-ink-200/70 bg-ink-50/80 backdrop-blur dark:border-ink-800/60 dark:bg-ink-950/80">
