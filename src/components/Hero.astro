@@ -1,5 +1,5 @@
 ---
-import { getLatestRelease } from '../lib/release';
+import { getLatestRelease, getStarCount } from '../lib/release';
 
 const demoEmbedUrl = 'https://www.loom.com/embed/29c1407fc2944b1fb5c6c1bbc953831b';
 const demoPosterUrl = '/keel-demo-poster.jpg';
@@ -7,6 +7,7 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
 const release = await getLatestRelease();
 const downloadUrl = release.dmgUrl;
+const starCount = await getStarCount();
 
 // Words rotated by the small client-side script below. Order kept in sync
 // with the data-rotate attribute so the static HTML matches the first word
@@ -54,7 +55,11 @@ const rotatingWords = ['memory', 'context', 'agents', 'AI', 'history', 'ideas'];
           </svg>
           Download for macOS
         </a>
-        <a href={githubUrl} class="btn-secondary" target="_blank" rel="noopener">
+        <a href={githubUrl} class="btn-secondary inline-flex items-center gap-2" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.246l-7.416 4.167 1.48-8.279L0 9.306l8.332-1.151z" />
+          </svg>
+          {starCount && <span class="tabular-nums">{starCount}</span>}
           View and Star on GitHub
         </a>
       </div>
