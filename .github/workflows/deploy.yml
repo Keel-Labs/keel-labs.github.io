@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Daily rebuild so a new Keel release picks up automatically without
+  # requiring a push to this repo. Build-time fetches in src/lib/release.ts
+  # and Header.astro re-resolve the latest tag, dmg URL, star count, and
+  # maintainer info on every run.
+  schedule:
+    - cron: '0 13 * * *'
 
 permissions:
   contents: read
