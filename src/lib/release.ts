@@ -1,8 +1,17 @@
-// Build-time fetch of the latest Keel release. Astro re-evaluates this
+// Build-time fetches against the GitHub API. Astro re-evaluates these
 // on every build (the deploy workflow rebuilds on every push to main),
-// so the pill text and direct-download URLs stay in sync without a
-// manual edit per release. Falls back to known-good values if the
-// GitHub API rate-limits, errors, or returns an unexpected shape.
+// so the rendered values stay in sync without a manual edit. Each
+// helper falls back to known-good values if the API rate-limits,
+// errors, or returns an unexpected shape.
+
+function authHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+  // Picked up by the deploy workflow (env: GITHUB_TOKEN), gives the
+  // build the 5k/hr authenticated quota instead of the 60/hr cap.
+  const token = typeof process !== 'undefined' ? process.env?.GITHUB_TOKEN : '';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
 
 type ReleaseInfo = {
   tag: string;       // e.g. "v0.2.0"
@@ -20,15 +29,9 @@ let cached: Promise<ReleaseInfo> | null = null;
 
 async function fetchLatest(): Promise<ReleaseInfo> {
   try {
-    // GitHub Actions runners expose GITHUB_TOKEN automatically — use it
-    // when present so the deploy workflow gets the 5k/hr authenticated
-    // quota instead of the 60/hr unauthenticated one.
-    const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-    const token = typeof process !== 'undefined' ? process.env?.GITHUB_TOKEN : '';
-    if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(
       'https://api.github.com/repos/Keel-Labs/keel/releases/latest',
-      { headers },
+      { headers: authHeaders() },
     );
     if (!res.ok) return FALLBACK;
     const data = await res.json() as {
@@ -56,4 +59,54 @@ async function fetchLatest(): Promise<ReleaseInfo> {
 export function getLatestRelease(): Promise<ReleaseInfo> {
   if (!cached) cached = fetchLatest();
   return cached;
+}
+
+type Maintainer = {
+  login: string;
+  name: string;
+  bio: string;
+  avatarUrl: string;
+  profileUrl: string;
+  location: string;
+  blog: string;
+  twitter: string;
+};
+
+const MAINTAINER_FALLBACK: Maintainer = {
+  login: 'medha',
+  name: 'Medha',
+  bio: '',
+  avatarUrl: 'https://github.com/medha.png',
+  profileUrl: 'https://github.com/medha',
+  location: '',
+  blog: '',
+  twitter: '',
+};
+
+let cachedMaintainer: Promise<Maintainer> | null = null;
+
+async function fetchMaintainer(): Promise<Maintainer> {
+  try {
+    const res = await fetch('https://api.github.com/users/medha', { headers: authHeaders() });
+    if (!res.ok) return MAINTAINER_FALLBACK;
+    const d = await res.json() as Record<string, unknown>;
+    const str = (v: unknown) => (typeof v === 'string' ? v : '');
+    return {
+      login: str(d.login) || MAINTAINER_FALLBACK.login,
+      name: str(d.name) || MAINTAINER_FALLBACK.name,
+      bio: str(d.bio),
+      avatarUrl: str(d.avatar_url) || MAINTAINER_FALLBACK.avatarUrl,
+      profileUrl: str(d.html_url) || MAINTAINER_FALLBACK.profileUrl,
+      location: str(d.location),
+      blog: str(d.blog),
+      twitter: str(d.twitter_username),
+    };
+  } catch {
+    return MAINTAINER_FALLBACK;
+  }
+}
+
+export function getMaintainer(): Promise<Maintainer> {
+  if (!cachedMaintainer) cachedMaintainer = fetchMaintainer();
+  return cachedMaintainer;
 }
