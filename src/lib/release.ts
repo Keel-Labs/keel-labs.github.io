@@ -75,7 +75,9 @@ type Maintainer = {
 const MAINTAINER_FALLBACK: Maintainer = {
   login: 'medha',
   name: 'Medha',
-  bio: '',
+  // Used when the GitHub profile bio is empty (it's null on the API
+  // today), and as the fallback when the API call itself fails.
+  bio: "Ex-Meta Product Manager, Ex-software engineer turned Indie Product Builder; vibe-coding solutions to problems I can't stop thinking about.",
   avatarUrl: 'https://github.com/medha.png',
   profileUrl: 'https://github.com/medha',
   location: '',
@@ -94,7 +96,7 @@ async function fetchMaintainer(): Promise<Maintainer> {
     return {
       login: str(d.login) || MAINTAINER_FALLBACK.login,
       name: str(d.name) || MAINTAINER_FALLBACK.name,
-      bio: str(d.bio),
+      bio: str(d.bio) || MAINTAINER_FALLBACK.bio,
       avatarUrl: str(d.avatar_url) || MAINTAINER_FALLBACK.avatarUrl,
       profileUrl: str(d.html_url) || MAINTAINER_FALLBACK.profileUrl,
       location: str(d.location),
