@@ -10,7 +10,6 @@ const navLinks = [
 ];
 
 const ghRepoUrl = 'https://github.com/Keel-Labs/keel';
-const ghStargazersUrl = `${ghRepoUrl}/stargazers`;
 const sponsorUrl = 'https://github.com/sponsors/medha';
 
 const release = await getLatestRelease();
@@ -37,11 +36,11 @@ const starCount = await getStarCount();
 
     <div class="flex items-center gap-2">
       <a
-        href={ghStargazersUrl}
+        href={ghRepoUrl}
         target="_blank"
         rel="noopener"
         class="hidden items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 transition hover:border-ink-300 hover:text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-ink-600 dark:hover:text-white sm:inline-flex"
-        aria-label={starCount ? `${starCount} stars on GitHub` : 'Star Keel on GitHub'}
+        aria-label={starCount ? `${starCount} stars on GitHub — open repo to star` : 'Star Keel on GitHub'}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.246l-7.416 4.167 1.48-8.279L0 9.306l8.332-1.151z" />
