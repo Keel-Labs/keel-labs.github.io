@@ -77,7 +77,7 @@ const MAINTAINER_FALLBACK: Maintainer = {
   name: 'Medha',
   // Used when the GitHub profile bio is empty (it's null on the API
   // today), and as the fallback when the API call itself fails.
-  bio: "Ex-Meta Product Manager, Ex-software engineer turned Indie Product Builder; vibe-coding solutions to problems I can't stop thinking about.",
+  bio: "Ex-Meta Product Manager, Ex-Software Engineer turned Indie Product Builder; vibe-coding solutions to problems I can't stop thinking about.",
   avatarUrl: 'https://github.com/medha.png',
   profileUrl: 'https://github.com/medha',
   location: '',
