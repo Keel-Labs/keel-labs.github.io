@@ -112,3 +112,28 @@ export function getMaintainer(): Promise<Maintainer> {
   if (!cachedMaintainer) cachedMaintainer = fetchMaintainer();
   return cachedMaintainer;
 }
+
+let cachedStarCount: Promise<string> | null = null;
+
+async function fetchStarCount(): Promise<string> {
+  try {
+    const res = await fetch('https://api.github.com/repos/Keel-Labs/keel', {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return '';
+    const data = await res.json() as { stargazers_count?: unknown };
+    if (typeof data.stargazers_count === 'number') {
+      return new Intl.NumberFormat('en-US').format(data.stargazers_count);
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+// Returns a humanised star count like "1,234", or '' when the API is
+// unreachable. Memoised so Header and CTA share one fetch per build.
+export function getStarCount(): Promise<string> {
+  if (!cachedStarCount) cachedStarCount = fetchStarCount();
+  return cachedStarCount;
+}
