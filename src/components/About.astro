@@ -40,22 +40,20 @@ const sponsorUrl = 'https://github.com/sponsors/medha';
             {m.bio}
           </p>
         )}
-        {(m.location || m.blog) && (
-          <p class="mt-3 text-sm text-ink-500 dark:text-ink-400">
-            {m.location}
-            {m.location && m.blog ? ' · ' : ''}
-            {m.blog && (
-              <a
-                href={m.blog.startsWith('http') ? m.blog : `https://${m.blog}`}
-                target="_blank"
-                rel="noopener"
-                class="hover:text-accent"
-              >
-                {m.blog.replace(/^https?:\/\//, '')}
-              </a>
-            )}
-          </p>
-        )}
+        <p class="mt-3 text-sm text-ink-500 dark:text-ink-400">
+          Hand crafted with love in sunny California
+          {m.blog && ' · '}
+          {m.blog && (
+            <a
+              href={m.blog.startsWith('http') ? m.blog : `https://${m.blog}`}
+              target="_blank"
+              rel="noopener"
+              class="hover:text-accent"
+            >
+              {m.blog.replace(/^https?:\/\//, '')}
+            </a>
+          )}
+        </p>
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
           <a href={m.profileUrl} target="_blank" rel="noopener" class="btn-secondary">
             @{m.login} on GitHub
