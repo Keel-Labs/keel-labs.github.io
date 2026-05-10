@@ -17,12 +17,14 @@ type ReleaseInfo = {
   tag: string;       // e.g. "v0.2.0"
   version: string;   // e.g. "0.2.0" — tag with the leading v stripped
   dmgUrl: string;    // direct .dmg asset URL
+  exeUrl: string;    // direct Windows NSIS installer asset URL
 };
 
 const FALLBACK: ReleaseInfo = {
   tag: 'v0.2.0',
   version: '0.2.0',
   dmgUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg',
+  exeUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-win-x64.exe',
 };
 
 let cached: Promise<ReleaseInfo> | null = null;
@@ -45,11 +47,20 @@ async function fetchLatest(): Promise<ReleaseInfo> {
           typeof a?.name === 'string' && a.name.endsWith('-mac.dmg'),
         )
       : undefined;
+    const winAsset = Array.isArray(data.assets)
+      ? data.assets.find((a) =>
+          typeof a?.name === 'string' && /-win-.*\.exe$/.test(a.name),
+        )
+      : undefined;
     const dmgUrl =
       macAsset && typeof macAsset.browser_download_url === 'string'
         ? macAsset.browser_download_url
         : FALLBACK.dmgUrl;
-    return { tag, version, dmgUrl };
+    const exeUrl =
+      winAsset && typeof winAsset.browser_download_url === 'string'
+        ? winAsset.browser_download_url
+        : FALLBACK.exeUrl;
+    return { tag, version, dmgUrl, exeUrl };
   } catch {
     return FALLBACK;
   }

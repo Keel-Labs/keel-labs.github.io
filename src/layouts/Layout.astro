@@ -8,7 +8,7 @@ interface Props {
 
 const {
   title = 'Keel — An AI assistant whose memory belongs to you.',
-  description = 'Local-first Mac app. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays with you.',
+  description = 'Local-first desktop app for Mac and Windows. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays with you.',
 } = Astro.props;
 
 // Build absolute URLs from `site` in astro.config.mjs so social crawlers
@@ -34,7 +34,7 @@ const ogImageUrl = new URL('/keel-logo.png', Astro.site).toString();
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:alt" content="Keel — local-first AI assistant for macOS" />
+    <meta property="og:image:alt" content="Keel — local-first AI assistant for macOS and Windows" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={ogImageUrl} />
     <meta name="twitter:title" content={title} />
