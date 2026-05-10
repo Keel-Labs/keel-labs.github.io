@@ -7,6 +7,11 @@ const githubUrl = 'https://github.com/Keel-Labs/keel';
 
 const release = await getLatestRelease();
 const downloadUrl = release.dmgUrl;
+
+// Words rotated by the small client-side script below. Order kept in sync
+// with the data-rotate attribute so the static HTML matches the first word
+// shown to no-JS users / search crawlers.
+const rotatingWords = ['memory', 'context', 'agents', 'AI', 'history', 'ideas'];
 ---
 
 <section class="relative overflow-hidden">
@@ -25,8 +30,18 @@ const downloadUrl = release.dmgUrl;
       <img
         src="/keel-logo.png"
         alt="Keel"
-        class="mt-5 h-auto w-full max-w-[18rem] md:max-w-[24rem] lg:max-w-[28rem]"
+        class="mt-5 h-auto w-full max-w-[14rem] md:max-w-[20rem] lg:max-w-[24rem]"
       />
+
+      <h1 class="mt-6 text-balance text-3xl font-semibold leading-[1.05] tracking-tight text-ink-900 dark:text-white md:text-5xl">
+        Bring your{' '}
+        <span
+          class="rotating-word text-accent"
+          data-rotate={rotatingWords.join('|')}
+          aria-live="polite"
+        >{rotatingWords[0]}</span>{' '}
+        home.
+      </h1>
 
       <p class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-ink-600 dark:text-ink-300 md:text-lg">
         <strong class="font-bold text-ink-900 dark:text-white">An AI assistant whose memory belongs to you.</strong> Local-first Mac app. Plain markdown on your disk. Swap Claude, GPT, OpenRouter, or Ollama anytime — your context stays.
@@ -356,6 +371,54 @@ const downloadUrl = release.dmgUrl;
     // Click on backdrop closes the modal.
     modal.addEventListener('click', (e) => {
       if (e.target === modal) close();
+    });
+  })();
+
+  // Rotating word swap on the hero headline ("Bring your X home."). Uses
+  // the data-rotate attribute so the static HTML matches the first word
+  // for no-JS users / search crawlers, and skips entirely when the user
+  // prefers reduced motion.
+  (() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduceMotion.matches) return;
+
+    const els = document.querySelectorAll<HTMLElement>('.rotating-word[data-rotate]');
+    els.forEach((el) => {
+      const words = (el.dataset.rotate || '').split('|').filter(Boolean);
+      if (words.length < 2) return;
+
+      // Reserve a modest min-width sized for the longest word so "home."
+      // doesn't slide around as words swap. Multiplier tuned for bold
+      // display weight at this heading size.
+      const longest = Math.max(...words.map((w) => w.length));
+      el.style.display = 'inline-block';
+      el.style.minWidth = `${longest * 0.48}em`;
+      el.style.textAlign = 'center';
+      el.style.transition = 'opacity 220ms ease, transform 220ms ease';
+      el.style.willChange = 'opacity, transform';
+
+      let idx = 0;
+      const tick = () => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        window.setTimeout(() => {
+          idx = (idx + 1) % words.length;
+          el.textContent = words[idx];
+          el.style.transform = 'translateY(6px)';
+          void el.offsetWidth;
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, 240);
+      };
+
+      let timer = window.setInterval(tick, 2200);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          window.clearInterval(timer);
+        } else {
+          timer = window.setInterval(tick, 2200);
+        }
+      });
     });
   })();
 </script>
