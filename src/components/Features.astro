@@ -1,4 +1,7 @@
 ---
+const walkthroughEmbedUrl = 'https://www.loom.com/embed/29c1407fc2944b1fb5c6c1bbc953831b';
+const walkthroughPosterUrl = '/keel-demo-poster.jpg';
+
 const features = [
   {
     tag: 'Capture',
@@ -48,11 +51,27 @@ const features = [
     <div class="max-w-3xl">
       <div class="flex items-baseline gap-5">
         <span class="section-num">04</span>
-        <span class="eyebrow">Capabilities</span>
+        <span class="eyebrow">Features</span>
       </div>
       <h2 class="mt-8 text-3xl font-semibold tracking-tight text-ink-900 dark:text-white md:text-5xl">
-        Everything a chief-of-staff would do, on your machine.
+        Capture, organize, schedule, and act - all on your machine.
       </h2>
+    </div>
+
+    <div class="mx-auto mt-12 max-w-4xl">
+      <button
+        type="button"
+        class="js-watch-walkthrough demo-poster block w-full"
+        aria-label="Watch Keel walkthrough"
+      >
+        <span class="demo-poster__frame" style={`background-image: url(${walkthroughPosterUrl})`}>
+          <span class="demo-poster__play" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
+      </button>
     </div>
 
     <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-ink-200 bg-ink-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-ink-800 dark:bg-ink-800">
@@ -65,4 +84,53 @@ const features = [
       ))}
     </div>
   </div>
+
+  <dialog id="walkthrough-modal" class="demo-modal">
+    <button id="close-walkthrough-btn" type="button" class="demo-modal__close" aria-label="Close walkthrough">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="demo-modal__embed">
+      <iframe
+        id="walkthrough-iframe"
+        data-src={walkthroughEmbedUrl}
+        title="Keel walkthrough video"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </dialog>
 </section>
+
+<script>
+  (() => {
+    const triggers = document.querySelectorAll<HTMLButtonElement>('.js-watch-walkthrough');
+    const closeBtn = document.getElementById('close-walkthrough-btn') as HTMLButtonElement | null;
+    const modal = document.getElementById('walkthrough-modal') as HTMLDialogElement | null;
+    const iframe = document.getElementById('walkthrough-iframe') as HTMLIFrameElement | null;
+    if (!triggers.length || !closeBtn || !modal || !iframe) return;
+
+    const open = () => {
+      const src = iframe.dataset.src || '';
+      if (iframe.getAttribute('src') !== src && src) {
+        iframe.setAttribute('src', src);
+      }
+      if (typeof modal.showModal === 'function') modal.showModal();
+      else modal.setAttribute('open', '');
+    };
+    triggers.forEach((t) => t.addEventListener('click', open));
+
+    const close = () => {
+      if (typeof modal.close === 'function') modal.close();
+      else modal.removeAttribute('open');
+      iframe.removeAttribute('src');
+    };
+    closeBtn.addEventListener('click', close);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) close();
+    });
+  })();
+</script>
