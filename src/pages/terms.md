@@ -143,7 +143,7 @@ See [`LICENSE`](./LICENSE) for the full MIT License text.
 
 ## 9. Privacy
 
-See our [Privacy Policy](./PRIVACY.md) for details on how we handle your data.
+See our [Privacy Policy](/privacy) for details on how we handle your data.
 
 **Key points:**
 - Your data stays on your machine by default
@@ -228,7 +228,7 @@ If any provision of these Terms is found invalid or unenforceable, the remaining
 
 ## 17. Entire Agreement
 
-These Terms, along with the [Privacy Policy](./PRIVACY.md) and any other agreements you accept, constitute the entire agreement between you and Keel regarding your use of the Software.
+These Terms, along with the [Privacy Policy](/privacy) and any other agreements you accept, constitute the entire agreement between you and Keel regarding your use of the Software.
 
 ---
 
