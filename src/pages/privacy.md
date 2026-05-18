@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/Layout.astro
+layout: ../layouts/LegalLayout.astro
 title: "Privacy Policy — Keel"
 description: "How Keel handles your data. Local-first, no telemetry, no data sale."
 ---

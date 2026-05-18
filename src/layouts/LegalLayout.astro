@@ -1,0 +1,126 @@
+---
+import Layout from './Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <Header />
+  <main class="container-narrow py-12 md:py-20">
+    <article class="legal-prose mx-auto max-w-3xl">
+      <slot />
+    </article>
+  </main>
+  <Footer />
+</Layout>
+
+<style is:global>
+  .legal-prose {
+    @apply text-ink-700 dark:text-ink-200;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .legal-prose h1 {
+    @apply text-4xl font-semibold tracking-tight text-ink-900 dark:text-ink-50;
+    margin-bottom: 0.75rem;
+  }
+
+  .legal-prose h1 + p {
+    @apply text-ink-500 dark:text-ink-400;
+    margin-bottom: 2rem;
+  }
+
+  .legal-prose h2 {
+    @apply text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .legal-prose h3 {
+    @apply text-lg font-semibold text-ink-900 dark:text-ink-50;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .legal-prose p {
+    margin-bottom: 1rem;
+  }
+
+  .legal-prose ul,
+  .legal-prose ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .legal-prose ul {
+    list-style: disc;
+  }
+
+  .legal-prose ol {
+    list-style: decimal;
+  }
+
+  .legal-prose li {
+    margin-bottom: 0.35rem;
+  }
+
+  .legal-prose li > ul,
+  .legal-prose li > ol {
+    margin-top: 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .legal-prose strong {
+    @apply font-semibold text-ink-900 dark:text-ink-50;
+  }
+
+  .legal-prose a {
+    @apply text-accent underline decoration-accent/40 underline-offset-2 transition hover:decoration-accent;
+  }
+
+  .legal-prose code {
+    @apply rounded bg-ink-100 px-1.5 py-0.5 text-[0.875em] text-ink-800 dark:bg-ink-800 dark:text-ink-100;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .legal-prose pre {
+    @apply overflow-x-auto rounded-lg bg-ink-100 p-4 text-sm dark:bg-ink-900;
+    margin-bottom: 1rem;
+  }
+
+  .legal-prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .legal-prose hr {
+    @apply border-ink-200 dark:border-ink-800;
+    margin: 2.5rem 0;
+  }
+
+  .legal-prose blockquote {
+    @apply border-l-4 border-ink-200 pl-4 italic text-ink-600 dark:border-ink-700 dark:text-ink-300;
+    margin-bottom: 1rem;
+  }
+
+  .legal-prose table {
+    @apply w-full border-collapse text-sm;
+    margin-bottom: 1.5rem;
+  }
+
+  .legal-prose th,
+  .legal-prose td {
+    @apply border border-ink-200 px-3 py-2 text-left align-top dark:border-ink-800;
+  }
+
+  .legal-prose th {
+    @apply bg-ink-100 font-semibold text-ink-900 dark:bg-ink-900 dark:text-ink-50;
+  }
+</style>
