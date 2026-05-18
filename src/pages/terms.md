@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/Layout.astro
+layout: ../layouts/LegalLayout.astro
 title: "Terms of Service — Keel"
 description: "Terms of service for the Keel desktop application."
 ---
