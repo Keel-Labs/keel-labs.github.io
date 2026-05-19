@@ -1,0 +1,216 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<Layout
+  title="Signing you in — Keel"
+  description="Completing your Keel sign-in. You can close this tab when it's done."
+>
+  <main class="flex min-h-screen flex-col">
+    <header class="border-b border-ink-200/70 bg-ink-50/80 dark:border-ink-800/60 dark:bg-ink-950/80">
+      <div class="container-narrow flex h-16 items-center">
+        <a href="/" class="flex items-center" aria-label="Keel">
+          <img src="/keel-logo.png" alt="Keel" class="h-9 w-auto" />
+        </a>
+      </div>
+    </header>
+
+    <section class="flex flex-1 items-center justify-center px-6 py-20">
+      <div class="w-full max-w-md text-center">
+        <img src="/keel-badge.png" alt="" class="mx-auto mb-8 h-14 w-auto rounded-lg" />
+
+        <!-- Loading state -->
+        <div id="state-loading">
+          <h1 class="font-serif text-3xl text-ink-900 dark:text-ink-50">Signing you in…</h1>
+          <p class="mt-4 text-ink-600 dark:text-ink-300">
+            Finishing up the handshake with Keel Cloud. This only takes a moment.
+          </p>
+          <div class="mt-8 flex justify-center" aria-hidden="true">
+            <div class="h-6 w-6 animate-spin rounded-full border-2 border-ink-300 border-t-accent dark:border-ink-700 dark:border-t-accent"></div>
+          </div>
+        </div>
+
+        <!-- Success state -->
+        <div id="state-success" class="hidden">
+          <div class="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-accent-100 text-accent-700 dark:bg-accent-700/20 dark:text-accent-300" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h1 class="font-serif text-3xl text-ink-900 dark:text-ink-50">You're signed in to Keel.</h1>
+          <p class="mt-4 text-ink-600 dark:text-ink-300">
+            Go back to the Keel app on your Mac or iPhone — it's already signing you in.
+          </p>
+          <p class="mt-8 text-sm text-ink-500 dark:text-ink-400">
+            You can close this tab.
+          </p>
+        </div>
+
+        <!-- Error state -->
+        <div id="state-error" class="hidden">
+          <div class="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-ink-200 text-ink-700 dark:bg-ink-800 dark:text-ink-300" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="8" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+          </div>
+          <h1 class="font-serif text-3xl text-ink-900 dark:text-ink-50" id="error-title">
+            Something went wrong
+          </h1>
+          <p class="mt-4 text-ink-600 dark:text-ink-300" id="error-message">
+            Try signing in again from the Keel app on your Mac or iPhone.
+          </p>
+          <p class="mt-8 text-sm text-ink-500 dark:text-ink-400">
+            If this keeps happening, request a fresh magic link from the app.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <Footer />
+  </main>
+</Layout>
+
+<script>
+  // Pure client-side: the tokens live in window.location.hash and never
+  // touch the server. We POST them to the Keel Cloud /auth/finalize
+  // endpoint, which stashes them in a short-lived pending_signins row
+  // for the originating device to pick up.
+
+  const FINALIZE_URL = 'https://api.keel-labs.org/auth/finalize';
+
+  const $loading = document.getElementById('state-loading')!;
+  const $success = document.getElementById('state-success')!;
+  const $error = document.getElementById('state-error')!;
+  const $errorTitle = document.getElementById('error-title')!;
+  const $errorMessage = document.getElementById('error-message')!;
+
+  function show(state: 'loading' | 'success' | 'error') {
+    $loading.classList.toggle('hidden', state !== 'loading');
+    $success.classList.toggle('hidden', state !== 'success');
+    $error.classList.toggle('hidden', state !== 'error');
+  }
+
+  function showError(title: string, message: string) {
+    $errorTitle.textContent = title;
+    $errorMessage.textContent = message;
+    show('error');
+  }
+
+  function decodeJwt(token: string): { sub?: string; email?: string } | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      // base64url -> base64
+      const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+      const json = atob(padded);
+      // Decode UTF-8 in case of non-ascii email
+      const decoded = decodeURIComponent(
+        Array.prototype.map
+          .call(json, (c: string) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(decoded);
+    } catch {
+      return null;
+    }
+  }
+
+  async function run() {
+    const url = new URL(window.location.href);
+    const nonce = url.searchParams.get('nonce');
+
+    if (!nonce) {
+      showError(
+        'Invalid sign-in link',
+        'Try again from the Keel app — request a fresh magic link.'
+      );
+      return;
+    }
+
+    const hash = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    const params = new URLSearchParams(hash);
+
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    const expires_at_raw = params.get('expires_at');
+
+    if (!access_token || !refresh_token || !expires_at_raw) {
+      showError(
+        'Invalid sign-in link',
+        'The link is missing the tokens it needs. Try again from the Keel app.'
+      );
+      return;
+    }
+
+    const expires_at = Number(expires_at_raw);
+    if (!Number.isFinite(expires_at)) {
+      showError(
+        'Invalid sign-in link',
+        'The link is malformed. Try again from the Keel app.'
+      );
+      return;
+    }
+
+    const claims = decodeJwt(access_token);
+    if (!claims || !claims.sub || !claims.email) {
+      showError(
+        'Invalid sign-in link',
+        'Could not read your account from the link. Try again from the Keel app.'
+      );
+      return;
+    }
+
+    try {
+      const res = await fetch(FINALIZE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nonce,
+          access_token,
+          refresh_token,
+          expires_at,
+          user_id: claims.sub,
+          email: claims.email,
+        }),
+      });
+
+      if (res.ok) {
+        // Strip the hash so the tokens don't linger in the address bar
+        // or browser history (best-effort; doesn't add a history entry).
+        try {
+          history.replaceState(null, '', url.pathname + url.search);
+        } catch {
+          // ignore
+        }
+        show('success');
+        return;
+      }
+
+      if (res.status === 404) {
+        showError(
+          'Sign-in expired',
+          'This sign-in link has expired. Start over in the Keel app.'
+        );
+        return;
+      }
+
+      showError(
+        'Something went wrong',
+        'We could not finish signing you in. Try again from the Keel app in a moment.'
+      );
+    } catch {
+      showError(
+        'Could not reach Keel Cloud',
+        'Check your connection and try signing in again from the Keel app.'
+      );
+    }
+  }
+
+  run();
+</script>
