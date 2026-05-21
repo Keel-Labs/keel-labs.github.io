@@ -136,14 +136,43 @@ import Footer from '../../components/Footer.astro';
       : window.location.hash;
     const params = new URLSearchParams(hash);
 
+    // Supabase populates `error` / `error_code` / `error_description` in the
+    // hash when the link is expired, already used, or otherwise rejected.
+    const error = params.get('error');
+    const error_code = params.get('error_code');
+    const error_description = params.get('error_description');
+
+    if (error || error_code || error_description) {
+      if (error_code === 'otp_expired') {
+        showError(
+          'This link has expired',
+          'Magic links last 60 minutes. Request a fresh one from the Keel app on your device.'
+        );
+        return;
+      }
+      if (error === 'access_denied') {
+        showError(
+          'This link was already used',
+          'Magic links work once. Request a fresh one from the Keel app on your device.'
+        );
+        return;
+      }
+      showError(
+        'This sign-in link did not work',
+        (error_description && error_description.replace(/\+/g, ' ')) ||
+          'Request a fresh magic link from the Keel app on your device.'
+      );
+      return;
+    }
+
     const access_token = params.get('access_token');
     const refresh_token = params.get('refresh_token');
     const expires_at_raw = params.get('expires_at');
 
     if (!access_token || !refresh_token || !expires_at_raw) {
       showError(
-        'Invalid sign-in link',
-        'The link is missing the tokens it needs. Try again from the Keel app.'
+        'This sign-in link was already used or has expired',
+        'Magic links work once and last 60 minutes. Request a fresh one from the Keel app on your device.'
       );
       return;
     }
