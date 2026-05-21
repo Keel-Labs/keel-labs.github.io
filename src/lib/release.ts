@@ -21,10 +21,10 @@ type ReleaseInfo = {
 };
 
 const FALLBACK: ReleaseInfo = {
-  tag: 'v0.2.0',
-  version: '0.2.0',
-  dmgUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-mac.dmg',
-  exeUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.2.0-win-x64.exe',
+  tag: 'v0.3.3',
+  version: '0.3.3',
+  dmgUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.3.3-mac.dmg',
+  exeUrl: 'https://github.com/Keel-Labs/keel/releases/latest/download/Keel-0.3.3-win-x64.exe',
 };
 
 let cached: Promise<ReleaseInfo> | null = null;
